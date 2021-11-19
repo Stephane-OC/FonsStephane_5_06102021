@@ -9,7 +9,6 @@ const urlSearchParams = new URLSearchParams(queryString_url_id);
 
 const id = urlSearchParams.get("id");
 //This const is here to gonna catch the "id"
-console.log(id);
 
 const colorChoice = document.getElementById("colors");
 
@@ -20,12 +19,13 @@ const itemsPrice = document.getElementById("price");
 
 
 
+
+
 fetch("http://localhost:3000/api/products/" + id) 
 //Catch data i need from the api 
 
 .then(data =>data.json())
 .then(product=>{
-console.log(product);
 
     /** Gave the attribute src to my image, to indicated the image URL        **
     **  Create content productsImg who gonna return the img                   **
@@ -57,10 +57,8 @@ console.log(product);
 
 
     let productName = product["name"];
-    console.log(productName);
-    
+
     let productPrice = product["price"];
-    console.log(productPrice);
 
     let productQuantity = document.getElementById('quantity');
     
@@ -69,7 +67,6 @@ console.log(product);
   **  that will be usefull for all the values who can be in the option value **
   **  in here we have a different number of option value                     */
 
-  console.log(product.colors);
   product.colors.forEach(color=>{
 
     let colorOption = document.createElement('option');
@@ -79,7 +76,6 @@ console.log(product);
     colorChoice.appendChild(colorOption);
   
   });
-
 
 
 //Here is the selection of the id of my button
@@ -104,6 +100,8 @@ btnCart.addEventListener("click", (event)=>{
   
     let quantity = productQuantity.value;
 
+   
+
     //Function for the pop up when a product is added in the cart
     const popupConfirm = () => {
     if(window.confirm(`${name} Couleur: ${color} à bien été ajouté au panier
@@ -125,16 +123,12 @@ btnCart.addEventListener("click", (event)=>{
       name : name,
       price : price,
       color: color,
-      quantity: quantity
+      quantity: quantity,
     };
-
-    console.log(typeof(productToAdd));
     
     // Catching the cart from Local Storage 
     // If Cart is Empty i build a empty board 
     const currentCart = JSON.parse(localStorage.getItem(cartName)) ?? [];
-
-    console.log(typeof(currentCart));
 
     // Catching the Index of the product who have the Id and the color of the product to add
     const itemIndex = currentCart.findIndex((item) =>

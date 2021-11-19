@@ -1,32 +1,19 @@
 // The local Storage and all the rules i need to make it work the good way 
 let productLocalStorage = JSON.parse(localStorage.getItem("products"));
-console.log(productLocalStorage);
-
-
-
 
   let cartItems = document.getElementById('cart__items');
-  console.log(cartItems);
 
-  function cartEmptyView() {
-    if (localStorage.length == 0) {
-      let cartEmpty = document.getElementById("cart__items");
-      cartEmpty.textContent = "Votre panier est vide ! Pensez à y ajouter un Kanap !"
 
-    }
-  }
-
-  /*This Function is here because of the unknown number of products in the cart
-  so i can reuse the creation of all elements if i need
-  All the JS elements have their own description to make the code more understandble*/
+  /*This Function is here because of the unknown number of products in the cart       **
+  **so i can reuse the creation of all elements if i need                             **
+  **All the JS elements have their own description to make the code more understandble*/
   const cartProducts = (productStorage, product) => {
 
     //------Create constant article who gonna contein all my elements------
 
     let article = document.createElement('article');
-    article.classList.add('cart__item');
+    article.classList.add('cart__item'); 
     article.setAttribute( "data-id", productStorage.id);
-
 
     let cartDivImg = document.createElement('div');
     cartDivImg.classList.add('cart__item__img');
@@ -45,7 +32,7 @@ console.log(productLocalStorage);
     cartName.textContent = productStorage.name;
 
     let cartPrice = document.createElement('p');
-    cartPrice.textContent = productStorage.price * productStorage.quantity + " €";
+    cartPrice.textContent = productStorage.price + " €";
 
     let cartDivSettings = document.createElement('div');
     cartDivSettings.classList.add('cart__item__content__settings');
@@ -56,24 +43,22 @@ console.log(productLocalStorage);
     let cartQuantityP = document.createElement('p');
     cartQuantityP.textContent = "Qté : ";
 
-
     let cartQuantityInput = document.createElement('input');
     cartQuantityInput.setAttribute("type","number");
     cartQuantityInput.setAttribute("name","itemQuantity");
+   
+    cartQuantityInput.classList.add('itemQuantity');
     cartQuantityInput.setAttribute("min","1");
     cartQuantityInput.setAttribute("max","100");
     cartQuantityInput.setAttribute("value", productStorage.quantity);
-
   
     let cartItemDelete = document.createElement('div');
     cartItemDelete.classList.add('cart__item__content__settings__delete');
    
-
     let CartDeleteP = document.createElement('p');
     CartDeleteP.textContent = "Supprimer";
     CartDeleteP.classList.add('deleteItem');
     
-
 
     //Create all the elements
     article.appendChild(cartDivImg);
@@ -90,14 +75,86 @@ console.log(productLocalStorage);
     cartItemDelete.appendChild(CartDeleteP);
     cartItems.appendChild(article);
 
-    removeItem();
-    cartEmptyView();
-    qteUp();
-    qteDown();
 
+    emptyCart();
+    qteChange();
+    removeItem();
+    qteChange();
+ 
   }
 
+  //--------------------------------Elements off cart-----------------------------
 
+
+  if (productLocalStorage === null){
+    emptyCart();
+
+  } 
+  // Loop "forEach" who create all the elements i need in my cart
+  else{
+
+  productLocalStorage.forEach(productLocalStorage => {
+
+    
+    fetch("http://localhost:3000/api/products/" + productLocalStorage.id) 
+      //Catch data i need from the api 
+
+      .then(data =>data.json())
+      .then(product=>{
+
+      cartProducts(productLocalStorage, product);
+     
+    });
+  });
+}
+
+
+function emptyCart() {
+  if (localStorage.length == 0) {
+    let cartEmpty = document.getElementById("cart__items");
+    cartEmpty.textContent = "Votre panier est vide ! Pensez à y ajouter un Kanap !"
+
+  }
+}
+    //--------------------------------Remove Function--------------------------------
+
+  /*Remove Function here i cath up the element of the item i need          **
+  **then i created a EventListener on Click                                ** 
+  **after that, i use closest to indicated the parent i want to delete     **
+  **for the local storage deleted i created another function, this function**
+  **is here to pick up my selected element in my local storage by his index**
+  **then i created an alert, this way, client have a feedback of deletion **/
+
+  let products = JSON.parse(localStorage.getItem("products"));
+
+  function removeItem() {
+
+    let removeBtn = document.querySelectorAll(".deleteItem");
+
+    for (let i = 0; i < removeBtn.length; i++) {
+      removeBtn[i].addEventListener("click", (event) => {
+        event.stopImmediatePropagation();
+
+        let articleSupp = removeBtn[i].closest("article");
+        
+        articleSupp.remove();
+        deleteItemSelected(i);
+        alert("This Item will be remove from your cart");
+        window.location.href = "cart.html";
+  
+        // Actualising the total amount of item in the cart    
+      });
+      //This Function 
+      function deleteItemSelected(index) {
+        products.splice(index, 1);
+        localStorage.setItem("products", JSON.stringify(products));
+        
+      }
+    }
+  }
+  
+
+ 
   // Function to send all the informations who are required on click on the button 
   function orderValid() {
     const validBtn = document.querySelector("#order");
@@ -115,37 +172,9 @@ console.log(productLocalStorage);
   }
   orderValid();
 
-  
-  
-
-  //--------------------------------Elements off cart-----------------------------
-
-  let cartStructure = [];
-
-  if (productLocalStorage === null){
-
-    console.log("je suis vide");
-  } 
-  // Loop "forEach" who create all the elements i need in my cart
-  else{
-
-  productLocalStorage.forEach(productLocalStorage => {
-
-    fetch("http://localhost:3000/api/products/" + productLocalStorage.id) 
-      //Catch data i need from the api 
-
-      .then(data =>data.json())
-      .then(product=>{
-      console.log(product);
-      cartProducts(productLocalStorage, product);
-
-    });
-  });
-
-  //----Variable who stock all the products price from my "productLocalStorage"----
-
   //--------------------------------Total Price------------------------------------
 
+  function calculateTotal() {
   let totalCart = [];                                
 
   //Catch all the prices i need in "totalCart"
@@ -158,11 +187,9 @@ console.log(productLocalStorage);
     console.log("Tous les prix stockés dans 'totalCart'", totalCart);
   }
 
-
   //Const who make the total off all the prices who are conteins in "totalCart"
   
   const reducer = (accumulator, curentValue) => accumulator + curentValue;
-  console.log(reducer);
 
   //If there is no products in the cart, the valor return is "0"
   const totalCartPrice = totalCart.reduce(reducer,0);
@@ -171,70 +198,48 @@ console.log(productLocalStorage);
 
   let totalPrice = document.getElementById('totalPrice');
   totalPrice.textContent = totalCartPrice;
-
+}
+  calculateTotal();
 
   //--------------------------------Total Quantity------------------------------------
 
-  let totalQteCart = [];                                
-
-  //Catch all the prices i need in "totalQteCart"
-  for (let j = 0; j < productLocalStorage.length; j++){
-    let qteProductsCart= productLocalStorage[j].quantity;
-
-    totalQteCart.push(qteProductsCart);
-
-    console.log("Tous les prix stockés dans 'totalCart'", qteProductsCart);
-  }
-
-  const tReducer = (qteItemCumul, qteItemsValue) => qteItemCumul + qteItemsValue;
-  console.log(tReducer);
-
-  const totalItemsCart = totalQteCart.reduce(tReducer,0);
-  console.log("Total Qtés", totalItemsCart);
-  
-  let totalQuantity = document.getElementById('totalQuantity')
-  totalQuantity.textContent = totalItemsCart;
-
-
-  //--------------------------------Remove Function--------------------------------
-
-  /*Remove Function here i cath up the element of the item i need          **
-  **then i created a EventListener on Click                                ** 
-  **after that, i use closest to indicated the parent i want to delete     **
-  **for the local storage deleted i created another function, this function**
-  **is he to pick up my selected element in my local storage by his index  **
-  **then i created an alert, this way, client have a feedback of deletion **/
-
-  let products = JSON.parse(localStorage.getItem("products"));
-  function removeItem() {
-    let removeBtn = document.querySelectorAll(".deleteItem");
-    for (let i = 0; i < removeBtn.length; i++) {
-      removeBtn[i].addEventListener("click", (e) => {
-        e.preventDefault();
-  
-        let articleSupp = removeBtn[i].closest("article");
-
-        articleSupp.remove();
-        deleteItemSelected(i);
-        alert("Cet article sera supprimé de votre panier");
-        window.location.href = "cart.html";
-  
-        // Actualising the total amount of item in the cart
-
-      });
-
-      function deleteItemSelected(index) {
-        products.splice(index, 1);
-        localStorage.setItem("products", JSON.stringify(products));
-      }
+  function totalArtQte() {
+    let total = 0;
+    for (let index in productLocalStorage) {
+      const quantity = parseInt(productLocalStorage[index].quantity, 10);
+      total += quantity;
     }
+    return total;
   }
-
+  const totalQuantity = document.getElementById('totalQuantity');
+  totalQuantity.textContent = totalArtQte();
 
 
   
+    /** Function to decrease quantity of my cart products to a minimum of 1                **
+    **  here the Function work "on change" so if the input number change, that will also   ** 
+    **  update the number and the price                                                    **
+    **  if the Indicated quantity Is less than 1 the product will be remove from the cart **/
+    function qteChange() {
 
-  }
+      let itemQuantity = document.getElementsByClassName("itemQuantity");
+
+      for  (let item = 0; item < itemQuantity.length; item++) {
+
+        itemQuantity[item].addEventListener("change", (event) => {
+
+            event.stopImmediatePropagation();
+            let qteUpdate = parseInt(itemQuantity[item].value);
+
+            products[item].quantity = qteUpdate;
+            localStorage.setItem("products", JSON.stringify(products));
+            alert("Panier modifier");
+            calculateTotal();
+            location.reload();
+          });
+        }  
+      }
+      qteChange();
 
   //-------------- The btn with all the instructions for formular send --------------
 
@@ -255,7 +260,6 @@ console.log(productLocalStorage);
 
     }
 
-    console.log("Here are all my formular data's ", order)
 
     let products = [];
     for (r = 0; r < products.length; r++) {
@@ -263,8 +267,6 @@ console.log(productLocalStorage);
     }
 
   //--------------------------------Formular Validation--------------------------------    
-
-
   
   //First name check with regex
   function firstNameCheck() {
@@ -272,18 +274,16 @@ console.log(productLocalStorage);
     const firstNameT = contact.firstName;
   
     if (/^[A-Za-z]+((\s)?((\'|\-|\.)?([A-Za-z])+))*$/.test(firstNameT)) {
-      console.log("OK");
+
       return true;
 
       } else{
-        console.log("Error Message First Name");
 
         let firstNameErrorMess = document.getElementById('firstNameErrorMsg'); 
         firstNameErrorMess.textContent = ("Le champs Prénom renseigné n'est pas correct !");
         return false;
 
     };
-
   };  
 
   //Last Name check with regex
@@ -292,17 +292,16 @@ console.log(productLocalStorage);
     const lastNameT = contact.lastName;
   
     if(/^[A-Za-z]+((\s)?((\'|\-|\.)?([A-Za-z])+))*$/.test(lastNameT)) {
-      console.log("OK");
+
       return true;
 
       } else{        
-        console.log("Error Message Last Name");
+
         let lastNameErrorMess = document.getElementById('lastNameErrorMsg'); 
         lastNameErrorMess.textContent = ("Le champs Nom renseigné n'est pas correct !");
         return false;
         
     };
-
   };
 
   //Adress check with regex
@@ -316,11 +315,10 @@ console.log(productLocalStorage);
       } else{
         let adressNameErrorMess = document.getElementById('addressErrorMsg'); 
         adressNameErrorMess.textContent = ("Le champs Adresse renseigné n'est pas correct !"); 
-        console.log("Error Message Adress");
+  
         return false;
                
     };
-
   };
 
   //City check with regex
@@ -334,11 +332,10 @@ console.log(productLocalStorage);
       } else{
         let cityNameErrorMess = document.getElementById('cityErrorMsg'); 
         cityNameErrorMess.textContent = ("Le champs Ville renseigné n'est pas correct !"); 
-        console.log("Error Message City");
-        return false;
-                     
-    };
 
+        return false;
+            
+    };
   };
 
   //Email Check with regex
@@ -352,12 +349,10 @@ console.log(productLocalStorage);
       } else{
         let emailNameErrorMess = document.getElementById('emailErrorMsg'); 
         emailNameErrorMess.textContent = ("Le champs Email renseigné n'est pas correct !"); 
-        console.log("Error Message Email");
-        return false;
-              
+
+        return false;   
 
       };
-
   };
 
   if (firstNameCheck() && lastNameCheck() && addressCheck() && emailCheck() && cityCheck() ){
@@ -370,31 +365,35 @@ console.log(productLocalStorage);
 }
 
 
-/* Function to get the Order Id by sending all the required informations
-** here i send the contact and products informations to the API      **/
+  /* Function to get the Order Id by sending all the required informations **
+  ** here i send the contact and products informations to the API         **/
 
-function getOrderId() {
-  const contact = {
-    firstName: document.querySelector("#firstName").value,
-    lastName: document.querySelector("#lastName").value,
-    address: document.querySelector("#address").value,
-    city: document.querySelector("#city").value,
-    email: document.querySelector("#email").value,
-  };
+  function getOrderId() {
+    const contact = {
+      firstName: document.querySelector("#firstName").value,
+      lastName: document.querySelector("#lastName").value,
+      address: document.querySelector("#address").value,
+      city: document.querySelector("#city").value,
+      email: document.querySelector("#email").value,
+    };
 
 
-  let products = [];
-  for (r = 0; r < products.length; r++) {
-    product.push(products[r]._id);
-  }
+    let products = [];
+    for (r = 0; r < products.length; r++) {
+      product.push(products[r]._id);
+    }
 
-  const formularSend = {
-    contact,
-    products,
-  };
+    const formularSend = {
+      contact,
+      products,
+    };
 
-  // Fonction API qui renvoie l'order ID si la requête est bonne
-  // API Function who get back an Order Id if the request is valid
+
+  /**  Function API POST this Function is here for request a Order ID      **
+  **   then i have a responce from the API, who get me back a Order ID     **
+  **   if the request is valid                                             **
+  **   I use "window.location.href" so all the informations i need will    **
+  **   be send to my search bar in my "confirmation" page                 **/
 
   function sendServer(formularSend) {
     localStorage.setItem("contact", JSON.stringify(contact));
