@@ -30,25 +30,25 @@ function createProductsCardName (product) {
   let article = document.createElement('article');
 
 
-  /*Gave the attribute src to my image, to indicated the image URL*/
-  /*Create contant productsImg who gonna return the img*/
-  /*Gave an alt attribute, who gonna contein the description of pictures*/
+  /* Gave the attribute src to my image, to indicated the image URL      **
+  ** Create contant productsImg who gonna return the img                 **
+  ** Gave an alt attribute, who gonna contein the description of pictures*/
   let productsImg = document.createElement('img');
   productsImg.setAttribute('src', product ["imageUrl"]);
   productsImg.setAttribute('alt', product["altText"]);
 
 
-  /*Create the constant H3 i need in my article*/
-  /*Add a class to my H3*/
-  /*Ask to go find the article name in "name"*/
+  /* Create the constant H3 i need in my article  **
+  ** Add a class to my H3                         **
+  ** Ask to go find the article name in "name"    */
   let productsName = document.createElement('h3');
   productsName.classList.add('productsName');
   productsName.textContent = product["name"];
 
 
-  /*Create constant P element i need to make description*/
-  /*Add a class to my P element*/
-  /*and catch her in "description"*/  
+  /*  Create constant P element i need to make description  **
+  **  Add a class to my P element                           **
+  **  and catch her in "description"                        */  
   let productsDescription = document.createElement('p');
   productsDescription.classList.add('productDescription');
   productsDescription.textContent = product["description"];

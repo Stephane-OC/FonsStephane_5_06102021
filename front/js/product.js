@@ -61,7 +61,7 @@ fetch("http://localhost:3000/api/products/" + id)
     let productPrice = product["price"];
 
     let productQuantity = document.getElementById('quantity');
-    
+
 
   /** Here i make a loop "forEach"                                           **
   **  that will be usefull for all the values who can be in the option value **
@@ -100,7 +100,10 @@ btnCart.addEventListener("click", (event)=>{
   
     let quantity = productQuantity.value;
 
-   
+    let imageUrl = product.imageUrl;
+
+    let altTxtS = product.altTxt;
+
 
     //Function for the pop up when a product is added in the cart
     const popupConfirm = () => {
@@ -112,8 +115,6 @@ btnCart.addEventListener("click", (event)=>{
       else{
         window.location.href = "index.html";
       }
-
-
   }
 
     // Here i create an object of my product to add with all the data i need
@@ -124,6 +125,8 @@ btnCart.addEventListener("click", (event)=>{
       price : price,
       color: color,
       quantity: quantity,
+      imageUrl: imageUrl,
+      altTxt: altTxtS
     };
     
     // Catching the cart from Local Storage 
@@ -152,16 +155,15 @@ btnCart.addEventListener("click", (event)=>{
     else {
       // Adding of the product in the cart 
       currentCart.push(productToAdd);
+
       popupConfirm();
     }
     
     // Update of the Local Storage
     localStorage.setItem(cartName, JSON.stringify(currentCart));
-}
+  }
 
-addToCart();
+  addToCart();
 
-
-})
-
+  })
 });
