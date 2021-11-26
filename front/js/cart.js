@@ -117,7 +117,7 @@ let productLocalStorage = JSON.parse(localStorage.getItem("products"));
   
 
 
-  /* Here Are all my functions all my Functions have a text who explain how they work true **
+  /* Here Are all my Functions all my Functions have a text who explain how they work true **
   ** All my Functions are usefull for my cart content and can be reuse if i need           */
 
   //--------------------------------Total Price------------------------------------
