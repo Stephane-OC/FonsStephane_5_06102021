@@ -160,8 +160,8 @@ let productLocalStorage = JSON.parse(localStorage.getItem("products"));
   
   /** Function to decrease quantity of my cart products to a minimum of 1                **
   **  here the Function work "on change" so if the input number change, that will also   ** 
-  **  update the number and the price                                                    **
-  **  if the Indicated quantity Is less than 1 the product will be remove from the cart **/
+  **  update the number and the price                                                   **/
+  
   function qteChange() {
 
     let itemQuantity = document.getElementsByClassName("itemQuantity");
@@ -182,7 +182,7 @@ let productLocalStorage = JSON.parse(localStorage.getItem("products"));
 
   //--------------------------------Remove Function--------------------------------
 
-  /*Remove Function here i cath up the element of the item i need          **
+  /*Remove Function here i catch up the element of the item i need         **
   **then i created a EventListener on Click                                ** 
   **after that, i use closest to indicated the parent i want to delete     **
   **for the local storage deleted i created another function, this function**
